@@ -31,3 +31,6 @@ Start with
 bundle install
 bundle exec ruby ./main.rb
 ```
+
+### Kubernetes
+Take a look at sample [`./k8s/coverage-tracker.yaml`](./k8s/coverage-tracker.yaml) manifest as example of simple deployment in K8s

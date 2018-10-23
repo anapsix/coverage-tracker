@@ -1,3 +1,4 @@
 .bundle
 vendor
 k8s
+!k8s/coverage-tracker.yaml

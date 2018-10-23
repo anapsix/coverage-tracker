@@ -1,0 +1,72 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: coverage-tracker
+---
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  name: coverage-tracker
+  namespace: coverage-tracker
+  labels:
+    app: coverage-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coverage-tracker
+  template:
+    metadata:
+      name: coverage-tracker
+      annotations:
+        kubernetes.io/change-cause: initial deployment
+      labels:
+        app: coverage-tracker
+    spec:
+      containers:
+      - name: coverage-tracker-redis
+        image: redis:alpine
+        imagePullPolicy: Always
+        ports:
+        - name: redis
+          containerPort: 6379
+          protocol: TCP
+      - name: coverage-tracker
+        image: anapsix/coverage-tracker
+        imagePullPolicy: Always
+        ports:
+        - name: app
+          containerPort: 8080
+          protocol: TCP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: coverage-tracker
+  namespace: coverage-tracker
+spec:
+  type: ClusterIP
+  selector:
+    app: coverage-tracker
+  ports:
+  - name: http
+    targetPort: app
+    port: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: coverage-tracker
+  namespace: coverage-tracker
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: coverage-tracker.random.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: coverage-tracker
+          servicePort: http

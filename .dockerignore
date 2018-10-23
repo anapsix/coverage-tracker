@@ -1,3 +1,4 @@
 .git
 .bundle
 vendor
+k8s
