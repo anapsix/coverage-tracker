@@ -1,6 +1,8 @@
+require 'rubygems'
 require 'json'
 require 'redis'
 require 'sinatra'
+require 'kramdown'
 
 configure do
   set :redis_host, ENV['REDIS_HOST'] || '127.0.0.1'
@@ -11,6 +13,9 @@ configure do
 
   set :shields_default_fileformat, ENV['SHIELDS_DEFAULT_FILEFORMAT'] || 'svg'
   set :shield_default_style, ENV['SHIELDS_DEFAULT_STYLE'] || 'for-the-badge'
+
+  set :views, [ './' ]
+  mime_type :md, 'text/plain'
 end
 
 $redis = Redis.new(host: settings.redis_host, port: settings.redis_port, db: 0)
@@ -23,6 +28,13 @@ end
 def set(repo=nil, branch="master", value=nil)
   return nil if repo.empty? || repo.nil? || value.empty? || value.nil?
   return $redis.set("#{repo}:#{branch}", value)
+end
+
+
+## routes below
+
+get '/' do
+  markdown :README
 end
 
 get '/:repo/:branch?' do |repo, branch="master"|
@@ -55,5 +67,10 @@ end
 post '/:repo/:branch?' do |repo, branch="master"|
   coverage = JSON.parse(request.body.read)['coverage']
   set(repo, branch, coverage)
+end
+
+get '/*' do
+  status 404
+  "### 404 ###"
 end
 
