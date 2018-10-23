@@ -5,6 +5,12 @@ require 'sinatra'
 configure do
   set :redis_host, ENV['REDIS_HOST'] || '127.0.0.1'
   set :redis_port, ENV['REDIS_PORT'] || '6379'
+
+  set :coverage_high, ENV['COVERAGE_HIGH'] || 75.00
+  set :coverage_low, ENV['COVERAGE_LOW'] || 30.00
+
+  set :shields_default_fileformat, ENV['SHIELDS_DEFAULT_FILEFORMAT'] || 'svg'
+  set :shield_default_style, ENV['SHIELDS_DEFAULT_STYLE'] || 'for-the-badge'
 end
 
 $redis = Redis.new(host: settings.redis_host, port: settings.redis_port, db: 0)
@@ -27,11 +33,19 @@ get '/:repo/:branch?' do |repo, branch="master"|
     return
   end
   if query['shields'] == 'true'
-    style = query['style'] || 'for-the-badge'
-    fileformat = query['fileformat'] || 'svg'
-    low = query['low'].to_f || 30.0
-    high = query['high'].to_f || 75.0
-    color = lookup.to_f <= low ? "red" : lookup.to_f >= high ? "green" : "yellow"
+    style = query['style'] || settings.shield_default_style
+    fileformat = query['fileformat'] || settings.shields_default_fileformat
+    low = query['low'] ? query['low'].to_f : settings.coverage_low
+    high = query['high'] ? query['high'].to_f : settings.coverage_high
+    color = lookup.to_f <= low ? "red" : lookup.to_f >= high ? 'green' : 'yellow'
+    debug = query['debug']
+
+    return {
+      :low => low,
+      :high => high,
+      :color => color
+    }.to_s if debug && debug.to_s[/yes|on|true|1/]
+
     redirect "https://img.shields.io/badge/coverage-#{lookup}%25-#{color}.#{fileformat}?style=#{style}", 302
   else
     return lookup
