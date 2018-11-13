@@ -40,10 +40,7 @@ end
 get '/:repo/:branch?' do |repo, branch="master"|
   query = Rack::Utils.parse_nested_query(request.query_string) || {}
   lookup = get(repo, branch)
-  if lookup.nil?
-    status 404
-    return "no recorded coverage for #{repo}/#{branch}"
-  end
+
   if query['shields'] == 'true'
     style = query['style'] || settings.shield_default_style
     fileformat = query['fileformat'] || settings.shields_default_fileformat
@@ -52,13 +49,24 @@ get '/:repo/:branch?' do |repo, branch="master"|
     color = lookup.to_f <= low ? "red" : lookup.to_f >= high ? 'green' : 'yellow'
     debug = query['debug']
 
+    # nil lookup means coverage was never
+    # recorded for this :repo/:branch
+    if lookup.nil?
+      lookup = "0"
+      color = "lightgrey"
+    end
+
     return {
+      :coverage => lookup.to_f,
       :low => low,
       :high => high,
       :color => color
     }.to_s if debug && debug.to_s[/yes|on|true|1/]
 
     redirect "https://img.shields.io/badge/coverage-#{lookup}%25-#{color}.#{fileformat}?style=#{style}", 302
+  elsif lookup.nil?
+      status 404
+      return "no recorded coverage for #{repo}/#{branch}"
   else
     return lookup
   end
