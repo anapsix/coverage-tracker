@@ -42,7 +42,7 @@ get '/:repo/:branch?' do |repo, branch="master"|
   lookup = get(repo, branch)
   if lookup.nil?
     status 404
-    return
+    return "no recorded coverage for #{repo}/#{branch}"
   end
   if query['shields'] == 'true'
     style = query['style'] || settings.shield_default_style
