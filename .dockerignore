@@ -1,4 +1,7 @@
 .git
 .bundle
+.gitignore
+.dockerignore
 vendor
 k8s
+Dockerfile

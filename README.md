@@ -17,17 +17,12 @@ Simple service tracking coverage, using Redis as storage. It returns previously 
     args['fileformat'] - fileformat to request from shields.io (optional, defaults to "svg")
     args['style']      - style of the badge from shields.io (optional, defaults to "for-the-badge")
 
-
-For fileformat and styles see [shields.io/](https://shields.io/)
-
-
+For fileformat and styles see [shields.io](https://shields.io/)
 
 ### POST /:repo/:branch - record coverage for :branch of a :repo
 
     ## Example
     ## curl -X POST http://localhost:4567/my-project/ -d '{"coverage":"23.3"}'
-
-
 
 Start with
 
