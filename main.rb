@@ -8,6 +8,7 @@ configure do
   set :redis_host, ENV['REDIS_HOST'] || '127.0.0.1'
   set :redis_port, ENV['REDIS_PORT'] || '6379'
 
+  set :badge_prefix, ENV['BADGE_PREFIX'] || 'coverage'
   set :coverage_high, ENV['COVERAGE_HIGH'] || 75.00
   set :coverage_low, ENV['COVERAGE_LOW'] || 30.00
 
@@ -47,6 +48,7 @@ get '/:repo/:branch?' do |repo, branch="master"|
     low = query['low'] ? query['low'].to_f : settings.coverage_low
     high = query['high'] ? query['high'].to_f : settings.coverage_high
     color = lookup.to_f <= low ? "red" : lookup.to_f >= high ? 'green' : 'yellow'
+    prefix = query['prefix'].to_s[/no|off|false|0/] ? '' : query['prefix'] || settings.badge_prefix
     debug = query['debug']
 
     # nil lookup means coverage was never
@@ -60,10 +62,11 @@ get '/:repo/:branch?' do |repo, branch="master"|
       :coverage => lookup.to_f,
       :low => low,
       :high => high,
-      :color => color
-    }.to_s if debug && debug.to_s[/yes|on|true|1/]
+      :color => color,
+      :prefix => prefix
+    }.to_s if debug.to_s[/yes|on|true|1/]
 
-    redirect "https://img.shields.io/badge/coverage-#{lookup}%25-#{color}.#{fileformat}?style=#{style}", 302
+    redirect "https://img.shields.io/badge/#{prefix}-#{lookup}%25-#{color}.#{fileformat}?style=#{style}", 302
   elsif lookup.nil?
       status 404
       return "no recorded coverage for #{repo}/#{branch}"
