@@ -4,10 +4,10 @@ GEM
     json (2.1.0)
     kramdown (1.17.0)
     mustermann (1.0.3)
-    rack (2.0.5)
+    rack (2.0.6)
     rack-protection (2.0.4)
       rack
-    redis (4.0.2)
+    redis (4.0.3)
     sinatra (2.0.4)
       mustermann (~> 1.0)
       rack (~> 2.0)
