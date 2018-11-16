@@ -41,7 +41,7 @@ get '/:repo/:branch?' do |repo, branch="master"|
   query = Rack::Utils.parse_nested_query(request.query_string) || {}
   lookup = get(repo, branch)
 
-  if query['shields'] == 'true'
+  if query['shields'].to_s[/yes|on|true|1/]
     style = query['style'] || settings.shield_default_style
     fileformat = query['fileformat'] || settings.shields_default_fileformat
     low = query['low'] ? query['low'].to_f : settings.coverage_low
