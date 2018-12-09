@@ -1,12 +1,13 @@
-require 'rubygems'
-require 'json'
-require 'redis'
-require 'sinatra'
-require 'kramdown'
+#!/usr/bin/env ruby
+
+require 'bundler'
+Bundler.require(:default)
 
 configure do
   set :redis_host, ENV['REDIS_HOST'] || '127.0.0.1'
   set :redis_port, ENV['REDIS_PORT'] || '6379'
+
+  set :default_branch, ENV['DEFAULT_BRANCH'] || 'master'
 
   set :badge_prefix, ENV['BADGE_PREFIX'] || 'coverage'
   set :coverage_high, ENV['COVERAGE_HIGH'] || 75.00
@@ -15,18 +16,18 @@ configure do
   set :shields_default_fileformat, ENV['SHIELDS_DEFAULT_FILEFORMAT'] || 'svg'
   set :shield_default_style, ENV['SHIELDS_DEFAULT_STYLE'] || 'for-the-badge'
 
-  set :views, [ './' ]
+  set :views, [ File.expand_path('../', __FILE__) ]
   mime_type :md, 'text/plain'
 end
 
 $redis = Redis.new(host: settings.redis_host, port: settings.redis_port, db: 0)
 
-def get(repo=nil, branch="master")
+def get(repo=nil, branch="default")
   return nil if repo.empty? || repo.nil?
   return $redis.get("#{repo}:#{branch}")
 end
 
-def set(repo=nil, branch="master", value=nil)
+def set(repo=nil, branch="default", value=nil)
   return nil if repo.empty? || repo.nil? || value.empty? || value.nil?
   return $redis.set("#{repo}:#{branch}", value)
 end
@@ -38,7 +39,8 @@ get '/' do
   markdown :README
 end
 
-get '/:repo/:branch?' do |repo, branch="master"|
+get '/:repo/?:branch?' do |repo, branch=nil|
+  branch = settings.default_branch unless branch
   query = Rack::Utils.parse_nested_query(request.query_string) || {}
   lookup = get(repo, branch)
 
@@ -75,7 +77,9 @@ get '/:repo/:branch?' do |repo, branch="master"|
   end
 end
 
-post '/:repo/:branch?' do |repo, branch="master"|
+post '/:repo/?:branch?' do |repo, branch=nil|
+  branch = settings.default_branch unless branch
+  # puts "BRANCH is \"#{branch}\""
   coverage = JSON.parse(request.body.read)['coverage']
   set(repo, branch, coverage)
 end

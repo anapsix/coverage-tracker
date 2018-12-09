@@ -1,19 +1,31 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    daemons (1.2.6)
+    eventmachine (1.2.7)
     json (2.1.0)
     kramdown (1.17.0)
     mustermann (1.0.3)
+    power_assert (1.1.3)
     rack (2.0.6)
     rack-protection (2.0.4)
       rack
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
+    rake (12.3.2)
     redis (4.0.3)
     sinatra (2.0.4)
       mustermann (~> 1.0)
       rack (~> 2.0)
       rack-protection (= 2.0.4)
       tilt (~> 2.0)
-    tilt (2.0.8)
+    test-unit (3.2.9)
+      power_assert
+    thin (1.7.2)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1, < 3)
+    tilt (2.0.9)
 
 PLATFORMS
   ruby
@@ -21,8 +33,12 @@ PLATFORMS
 DEPENDENCIES
   json
   kramdown
+  rack-test
+  rake
   redis
   sinatra
+  test-unit
+  thin
 
 BUNDLED WITH
-   1.16.4
+   1.17.1
