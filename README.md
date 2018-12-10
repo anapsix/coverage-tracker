@@ -35,15 +35,15 @@ Start with
     bundle exec ruby ./main.rb
 
 ### Docker
-```
-docker build -t coverage-tracker .
-docker run -d --name redis --rm -p 6379:6379 redis:alpine
-docker run -d --name ct --rm --link redis:red -e REDIS_HOST=red -p 8080:8080 coverage-tracker
-curl -X POST "http://localhost:8080/project-name/master" -d '{"coverage":"48.00"}'
-curl -sS --fail "http://localhost:8080/project-name/master"
-curl -sS "http://localhost:8080/project-name/master?shields=1&debug=1"
-curl -sS -D- -o/dev/null "http://localhost:8080/project-name/master?shields=1"
-```
+
+    docker build -t coverage-tracker .
+    docker run -d --name redis --rm -p 6379:6379 redis:alpine
+    docker run -d --name ct --rm --link redis:red -e REDIS_HOST=red -p 8080:8080 coverage-tracker
+    curl -X POST "http://localhost:8080/project-name/master" -d '{"coverage":"48.00"}'
+    curl -sS --fail "http://localhost:8080/project-name/master"
+    curl -sS "http://localhost:8080/project-name/master?shields=1&debug=1"
+    curl -sS -D- -o/dev/null "http://localhost:8080/project-name/master?shields=1"
+
 
 ### Kubernetes
 Take a look at sample [`./k8s/coverage-tracker.yaml`](./k8s/coverage-tracker.yaml) manifest as example of simple deployment in K8s

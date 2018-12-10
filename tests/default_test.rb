@@ -98,4 +98,13 @@ class CoverageTrackerTest < Test::Unit::TestCase
     assert_equal "33.33", last_response.body
   end
 
+  def test_NaN
+    post "/#{$repo}", '{"coverage":"NaN"}'
+    assert last_response.ok?
+    assert_equal "OK", last_response.body
+
+    get "/#{$repo}"
+    assert_equal "0.0", last_response.body
+  end
+
 end

@@ -6,21 +6,22 @@ Bundler.require(:default)
 configure do
   set :redis_host, ENV['REDIS_HOST'] || '127.0.0.1'
   set :redis_port, ENV['REDIS_PORT'] || '6379'
+  set :redis_db,   ENV['REDIS_DB']   || 0
 
   set :default_branch, ENV['DEFAULT_BRANCH'] || 'master'
 
-  set :badge_prefix, ENV['BADGE_PREFIX'] || 'coverage'
+  set :badge_prefix,  ENV['BADGE_PREFIX']  || 'coverage'
+  set :coverage_low,  ENV['COVERAGE_LOW']  || 30.00
   set :coverage_high, ENV['COVERAGE_HIGH'] || 75.00
-  set :coverage_low, ENV['COVERAGE_LOW'] || 30.00
 
+  set :shield_default_style,       ENV['SHIELDS_DEFAULT_STYLE']      || 'for-the-badge'
   set :shields_default_fileformat, ENV['SHIELDS_DEFAULT_FILEFORMAT'] || 'svg'
-  set :shield_default_style, ENV['SHIELDS_DEFAULT_STYLE'] || 'for-the-badge'
 
   set :views, [ File.expand_path('../', __FILE__) ]
   mime_type :md, 'text/plain'
 end
 
-$redis = Redis.new(host: settings.redis_host, port: settings.redis_port, db: 0)
+$redis = Redis.new(host: settings.redis_host, port: settings.redis_port, db: settings.redis_db)
 
 def get(repo=nil, branch="default")
   return nil if repo.empty? || repo.nil?
@@ -29,7 +30,7 @@ end
 
 def set(repo=nil, branch="default", value=nil)
   return nil if repo.empty? || repo.nil? || value.empty? || value.nil?
-  return $redis.set("#{repo}:#{branch}", value)
+  return $redis.set("#{repo}:#{branch}", value.to_f)
 end
 
 
