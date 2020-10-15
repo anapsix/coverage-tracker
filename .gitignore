@@ -1,4 +1,5 @@
 .bundle
+dump.rdb
 vendor
 k8s
 !k8s/coverage-tracker.yaml
