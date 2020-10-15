@@ -16,6 +16,21 @@ class CoverageTrackerTest < Test::Unit::TestCase
   $branch = "mybranch"
   $branch_default = ENV['DEFAULT_BRANCH']
 
+  class << self
+    def startup
+      redis = fork do
+        exec "redis-server --pidfile redis.pid > /dev/null"
+      end
+
+      Process.detach(redis)
+    end
+
+    def shutdown
+      pid = File.read('redis.pid').chomp
+      system("kill #{pid} 2>&1 >/dev/null")
+    end
+  end
+
   def random_string(length=10)
     o = [('a'..'z'), ('A'..'Z')].map(&:to_a).flatten
     (0...length).map { o[rand(o.length)] }.join
