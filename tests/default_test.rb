@@ -18,16 +18,19 @@ class CoverageTrackerTest < Test::Unit::TestCase
 
   class << self
     def startup
-      redis = fork do
-        exec "redis-server --pidfile redis.pid > /dev/null"
+      unless ENV['REDIS_NO_START'] == '1'
+        redis = fork do
+          exec "redis-server --pidfile redis.pid > /dev/null"
+        end
+        Process.detach(redis)
       end
-
-      Process.detach(redis)
     end
 
     def shutdown
-      pid = File.read('redis.pid').chomp
-      system("kill #{pid} 2>&1 >/dev/null")
+      unless ENV['REDIS_NO_START'] == '1'
+        pid = File.read('redis.pid').chomp
+        system("kill #{pid} 2>&1 >/dev/null")
+      end
     end
   end
 
