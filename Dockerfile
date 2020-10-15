@@ -1,5 +1,5 @@
 # defining base ruby image
-FROM ruby:alpine as ruby
+FROM ruby:2.7.2-alpine as ruby
 ENV APP_ROOT=/app \
     RUNAS_USER=app
 WORKDIR ${APP_ROOT}
